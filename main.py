@@ -76,7 +76,6 @@ class AddressBook(UserDict):
     # Method to add a record to the address book
     def add_record(self, record):
         self.data[record.name.value] = record
-        print(self.data)
 
     # Method to find a record by name in the address book
     def find(self, name):
