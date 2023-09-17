@@ -30,7 +30,7 @@ class Record:
         self.name = Name(name)
         self.phones = []
 
-    def add_phone(self, phone=None):
+    def add_phone(self, phone):
         self.phones.append(Phone(phone))
 
     def remove_phone(self, phone):
