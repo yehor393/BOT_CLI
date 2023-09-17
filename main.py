@@ -34,29 +34,23 @@ class Record:
         self.phones.append(Phone(phone))
 
     def remove_phone(self, phone):
-        phone_to_remove = None
         for p in self.phones:
             if p.value == phone:
-                phone_to_remove = p
+                self.phones.remove(p)
                 break
-
-        if phone_to_remove is not None:
-            self.phones.remove(phone_to_remove)
+        else:
+            raise ValueError("Phone number not found")
 
     def edit_phone(self, old_phone, new_phone):
-        phone_to_edit = None
         for p in self.phones:
             if old_phone == p.value:
-                phone_to_edit = p
+                p.value = new_phone
                 break
-
-        if phone_to_edit is None:
+        else:
             raise ValueError("Phone number not found")
 
         if not is_valid_phone(new_phone):
             raise ValueError("New phone number must be 10 digits")
-
-        phone_to_edit.value = new_phone
 
     def find_phone(self, phone):
         for p in self.phones:
