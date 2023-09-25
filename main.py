@@ -5,6 +5,7 @@ from datetime import datetime, date
 # Base class representing a field with a value
 class Field:
     def __init__(self, value):
+        self.__value = None
         self.value = value
 
     @property
@@ -32,20 +33,19 @@ class Phone(Field):
 
     @property
     def value(self):
-        return self.__value
+        return self.__phone
 
     @value.setter
     def value(self, phone):
         if not (len(phone) == 10 and phone.isdigit()):
             raise ValueError("Phone number must be 10 digits and consist of digits only")
-        self.__value = phone
+        self.__phone = phone
 
 
 # Subclass of Field representing a Birthday field
 class Birthday(Field):
     def __init__(self, birthday):
         self.__birthday = None
-        self.value = birthday
         super().__init__(birthday)
 
     @property
@@ -117,7 +117,7 @@ class Record:
         return None
 
     def __str__(self):
-        phones_str = '; '.join(p.value for p in self.phones)
+        phones_str = '; '.join(p.value for p in self.phones if p.value is not None)
         if self.birthday is not None:
             birthday_str = f'Birthday: {self.birthday.value}'
             days_until_birthday = self.days_to_birthday()
