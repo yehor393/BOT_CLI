@@ -77,13 +77,11 @@ class Record:
         if self.birthday is None:
             return None
         today = date.today()
-        birthday_date = self.birthday.value
-        birthday_date = date(*map(int, birthday_date.split("-")))
+        birthday_date = date(*map(int, self.birthday.value.split("-")))
         next_birthday = birthday_date.replace(year=today.year)
         if today > next_birthday:
             next_birthday = next_birthday.replace(year=today.year + 1)
-        days_until_birthday = (next_birthday - today).days
-        return days_until_birthday
+        return (next_birthday - today).days
 
     # Method to add a phone to the record
     def add_phone(self, phone):
@@ -116,11 +114,11 @@ class Record:
         return None
 
     def __str__(self):
-        phones_str = '; '.join(p.value for p in self.phones if p.value is not None)
+        phones_str = '; '.join(p.value for p in self.phones)
         if self.birthday is not None:
-            birthday_str = f'Birthday: {self.birthday.value}'
+            birthday_str = self.birthday.value
             days_until_birthday = self.days_to_birthday()
-            return (f"Contact name: {self.name.value}, phones: {phones_str}, {birthday_str}, "
+            return (f"Contact name: {self.name.value}, Phones: {phones_str}, Birthday:{birthday_str}, "
                     f"Days until birthday: {days_until_birthday} days")
         else:
             return f"Contact name: {self.name.value}, phones: {phones_str}, No birthday specified"
