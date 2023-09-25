@@ -33,30 +33,29 @@ class Phone(Field):
 
     @property
     def value(self):
-        return self.__phone
+        return self.__value
 
     @value.setter
     def value(self, phone):
         if not (len(phone) == 10 and phone.isdigit()):
             raise ValueError("Phone number must be 10 digits and consist of digits only")
-        self.__phone = phone
+        self.__value = phone
 
 
 # Subclass of Field representing a Birthday field
 class Birthday(Field):
     def __init__(self, birthday):
-        self.__birthday = None
         super().__init__(birthday)
 
     @property
     def value(self):
-        return self.__birthday
+        return self.__value
 
     @value.setter
     def value(self, birthday):
         try:
             datetime.strptime(birthday, '%Y-%m-%d')
-            self.__birthday = birthday
+            self.__value = birthday
         except ValueError:
             raise ValueError("Invalid birthday format. Please use 'YYYY-MM-DD' format.")
 
