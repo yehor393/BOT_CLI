@@ -1,5 +1,6 @@
 from collections import UserDict
 from datetime import datetime, date
+import pickle
 
 
 # Base class representing a field with a value
@@ -118,7 +119,7 @@ class Record:
         if self.birthday is not None:
             birthday_str = self.birthday.value
             days_until_birthday = self.days_to_birthday()
-            return (f"Contact name: {self.name.value}, Phones: {phones_str}, Birthday:{birthday_str}, "
+            return (f"Contact name: {self.name.value}, Phones: {phones_str}, Birthday: {birthday_str}, "
                     f"Days until birthday: {days_until_birthday} days")
         else:
             return f"Contact name: {self.name.value}, phones: {phones_str}, No birthday specified"
@@ -131,11 +132,16 @@ class AddressBook(UserDict):
     def add_record(self, record):
         self.data[record.name.value] = record
 
-    # Method to find a record by name in the address book
-    def find(self, name):
-        if name in self.data:
-            return self.data[name]
-        return None
+    # Method to find a record by parts name or phone in the address book
+    def find(self, query):
+        matching_contacts = []
+        for note in self.values():
+            if query.lower() in note.name.value.lower():
+                matching_contacts.append(note)
+            for phone in note.phones:
+                if query.lower() in phone.value:
+                    matching_contacts.append(note)
+        return matching_contacts
 
     # Method to delete a record by name from the address book
     def delete(self, name):
@@ -152,25 +158,77 @@ class AddressBook(UserDict):
             current_batch += batch_size
 
 
-# Створюємо об'єкт класу AddressBook
-address_book = AddressBook()
+class AddressBookFileManager:
+    def __init__(self, filename):
+        self.filename = filename
 
-# Створюємо об'єкти класу Record з іменем, номерами телефонів та днем народження
-record1 = Record("John Doe", ["1234567890", "9876543210"], "2000-01-01")
-record2 = Record("Jane Smith", ["1111111111", "2222222222"])
-record3 = Record("Bob Johnson", ["3333333333"], "1995-05-05")
+    def save(self, address_book):
+        with open(self.filename, 'wb') as file:
+            pickle.dump(address_book, file)
 
-# Додаємо записи в адресну книгу
-address_book.add_record(record1)
-address_book.add_record(record2)
-address_book.add_record(record3)
+    def load(self):
+        try:
+            with open(self.filename, 'rb') as file:
+                return pickle.load(file)
+        except AttributeError:
+            return None
 
-# Використовуємо пагінацію для виведення записів з адресної книги
-iterator = address_book.iterator(batch_size=2)
-while True:
+    def __getstate__(self):
+        attributes = self.__dict__.copy()
+        return attributes
+
+    def __setstate__(self, state):
+        self.__dict__ = state
+
+def main():
+    filename = 'cont.txt'
+    file_manager = AddressBookFileManager(filename)
+
     try:
-        batch = next(iterator)
-        for records in batch:
-            print(records)
-    except StopIteration:
-        break
+        address_book = file_manager.load()
+    except FileNotFoundError:
+        address_book = AddressBook()
+    while True:
+        print("1. Додати контакт")
+        print("2. Пошук контакту")
+        print("3. Вийти")
+        choice = input("Виберіть опцію: ")
+
+        match choice:
+
+            case "1":
+                name = input("Введіть ім'я контакту: ")
+                while True:
+                    phone = input("Введіть номер телефону: ")
+                    try:
+                        Phone(phone)
+                        break
+                    except ValueError as e:
+                        print(e)
+                while True:
+                    birthday = input("Введіть день народження (YYYY-MM-DD): ")
+                    try:
+                        Birthday(birthday)
+                        break
+                    except ValueError as e:
+                        print(e)
+                new_record = Record(name, [phone], birthday)
+                address_book.add_record(new_record)
+                file_manager.save(address_book)
+                print("Контакт додано!")
+
+            case "2":
+                query = input("Введіть ім'я або номер телефону для пошуку: ")
+                matching_contacts = address_book.find(query)
+                if matching_contacts:
+                    print(f"За Вашим запитом '{query}' знайдено такі контакти:")
+                    for contact in matching_contacts:
+                        print(contact)
+                else:
+                    print("Контакт не знайдено")
+
+            case "3":
+                break
+
+if __name__ == "__main__":
+    main()
