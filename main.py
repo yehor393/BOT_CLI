@@ -180,6 +180,7 @@ class AddressBookFileManager:
     def __setstate__(self, state):
         self.__dict__ = state
 
+
 def main():
     filename = 'cont.txt'
     file_manager = AddressBookFileManager(filename)
