@@ -173,6 +173,7 @@ class AddressBookFileManager:
         except AttributeError:
             return None
 
+
 # Define a main function for the program.
 def main():
     filename = 'contact.txt'
@@ -223,6 +224,7 @@ def main():
 
             case "3":
                 break
+
 
 # Run the main function if this script is executed.
 if __name__ == "__main__":
