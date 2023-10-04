@@ -164,72 +164,66 @@ class AddressBookFileManager:
 
     def save(self, address_book):
         with open(self.filename, 'wb') as file:
-            pickle.dump(address_book, file)
+            pickle.dump(address_book, file)  # Save the address book to a binary file.
 
     def load(self):
         try:
             with open(self.filename, 'rb') as file:
-                return pickle.load(file)
+                return pickle.load(file)  # Load the address book from a binary file.
         except AttributeError:
             return None
 
-    def __getstate__(self):
-        attributes = self.__dict__.copy()
-        return attributes
-
-    def __setstate__(self, state):
-        self.__dict__ = state
-
-
+# Define a main function for the program.
 def main():
-    filename = 'cont.txt'
+    filename = 'contact.txt'
     file_manager = AddressBookFileManager(filename)
 
     try:
-        address_book = file_manager.load()
+        address_book = file_manager.load()  # Attempt to load the address book from the file.
     except FileNotFoundError:
-        address_book = AddressBook()
+        address_book = AddressBook()  # Create a new address book if the file doesn't exist.
+
     while True:
-        print("1. Додати контакт")
-        print("2. Пошук контакту")
-        print("3. Вийти")
-        choice = input("Виберіть опцію: ")
+        print("1. Add a contact")
+        print("2. Search for a contact")
+        print("3. Exit")
+        choice = input("Choose an option: ")
 
         match choice:
-
             case "1":
-                name = input("Введіть ім'я контакту: ")
+                name = input("Enter the contact's name: ")
                 while True:
-                    phone = input("Введіть номер телефону: ")
+                    phone = input("Enter the phone number: ")
                     try:
-                        Phone(phone)
+                        Phone(phone)  # Validate the phone number.
                         break
                     except ValueError as e:
                         print(e)
                 while True:
-                    birthday = input("Введіть день народження (YYYY-MM-DD): ")
+                    birthday = input("Enter the date of birth (YYYY-MM-DD): ")
                     try:
-                        Birthday(birthday)
+                        Birthday(birthday)  # Validate the date of birth.
                         break
                     except ValueError as e:
                         print(e)
                 new_record = Record(name, [phone], birthday)
                 address_book.add_record(new_record)
-                file_manager.save(address_book)
-                print("Контакт додано!")
+                file_manager.save(address_book)  # Save the updated address book.
+                print("Contact added!")
 
             case "2":
-                query = input("Введіть ім'я або номер телефону для пошуку: ")
+                query = input("Enter a name or phone number to search for: ")
                 matching_contacts = address_book.find(query)
                 if matching_contacts:
-                    print(f"За Вашим запитом '{query}' знайдено такі контакти:")
+                    print(f"Contacts found for your query '{query}':")
                     for contact in matching_contacts:
                         print(contact)
                 else:
-                    print("Контакт не знайдено")
+                    print("Contact not found")
 
             case "3":
                 break
 
+# Run the main function if this script is executed.
 if __name__ == "__main__":
     main()
