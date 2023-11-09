@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from collections import UserDict
 from datetime import datetime, date
 import pickle
@@ -174,8 +175,39 @@ class AddressBookFileManager:
             return None
 
 
+class UserInterface(ABC):
+    @abstractmethod
+    def display_contacts(self, contacts):
+        pass
+
+    @abstractmethod
+    def display_commands(self):
+        pass
+
+    @abstractmethod
+    def get_user_input(self, prompt):
+        pass
+
+
+class ConsoleUserInterface(UserInterface):
+    def display_contacts(self, contacts):
+        print("Contacts:")
+        for contact in contacts:
+            print(contact)
+
+    def display_commands(self):
+        print("Available commands:")
+        print("1. Add a contact")
+        print("2. Search for a contact")
+        print("3. Show all contacts")
+        print("4. Exit")
+
+    def get_user_input(self, prompt):
+        return input(prompt)
+
+
 # Define a main function for the program.
-def main():
+def main(user_interface):
     filename = 'contact.txt'
     file_manager = AddressBookFileManager(filename)
 
@@ -185,47 +217,51 @@ def main():
         address_book = AddressBook()  # Create a new address book if the file doesn't exist.
 
     while True:
-        print("1. Add a contact")
-        print("2. Search for a contact")
-        print("3. Exit")
-        choice = input("Choose an option: ")
+        user_interface.display_commands()
+        choice = user_interface.get_user_input("Choose an option: ")
 
-        match choice:
-            case "1":
-                name = input("Enter the contact's name: ")
-                while True:
-                    phone = input("Enter the phone number: ")
-                    try:
-                        Phone(phone)  # Validate the phone number.
-                        break
-                    except ValueError as e:
-                        print(e)
-                while True:
-                    birthday = input("Enter the date of birth (YYYY-MM-DD): ")
-                    try:
-                        Birthday(birthday)  # Validate the date of birth.
-                        break
-                    except ValueError as e:
-                        print(e)
-                new_record = Record(name, [phone], birthday)
-                address_book.add_record(new_record)
-                file_manager.save(address_book)  # Save the updated address book.
-                print("Contact added!")
+        if choice == "1":
+            name = input("Enter the contact's name: ")
+            while True:
+                phone = input("Enter the phone number: ")
+                try:
+                    Phone(phone)  # Validate the phone number.
+                    break
+                except ValueError as e:
+                    print(e)
+            while True:
+                birthday = input("Enter the date of birth (YYYY-MM-DD): ")
+                try:
+                    Birthday(birthday)  # Validate the date of birth.
+                    break
+                except ValueError as e:
+                    print(e)
+            new_record = Record(name, [phone], birthday)
+            address_book.add_record(new_record)
+            file_manager.save(address_book)  # Save the updated address book.
+            print("Contact added!")
 
-            case "2":
-                query = input("Enter a name or phone number to search for: ")
-                matching_contacts = address_book.find(query)
-                if matching_contacts:
-                    print(f"Contacts found for your query '{query}':")
-                    for contact in matching_contacts:
-                        print(contact)
-                else:
-                    print("Contact not found")
+        elif choice == "2":
+            query = input("Enter a name or phone number to search for: ")
+            matching_contacts = address_book.find(query)
+            if matching_contacts:
+                print(f"Contacts found for your query '{query}':")
+                for contact in matching_contacts:
+                    print(contact)
+            else:
+                print("Contact not found")
 
-            case "3":
-                break
+        elif choice == "3":
+            user_interface.display_contacts(address_book.values())
+
+        elif choice == "4":
+            break
+
+        else:
+            print("Invalid choice. Please choose a valid option.")
 
 
 # Run the main function if this script is executed.
 if __name__ == "__main__":
-    main()
+    console_ui = ConsoleUserInterface()
+    main(console_ui)
